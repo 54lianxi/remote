@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <title>Document</title>
+    <style>
+    .one{
+        margin-bottom:50px;
+        border:1px solid #ccc;
+        border-radius: 10px;
+        padding:10px 20px;
+        line-height:34px;
+    }
+    .ri10{
+        margin-right:10px;
+    }
+    </style>
+</head>
+<body>
+   <div id="body" class="w1200">
+       <div class="title">查看广告</div>
+       <div v-if="list.length==0" v-cloak>暂无数据</div>
+       <div>
+            <div v-for="(item,key) in list" class="one">   
+                    <div>
+                        <span class="ri10">主标题:</span>{{item.title}}
+                    </div>
+                    <div>
+                        <span  class="ri10">小标题:</span>{{item.smallTitle}}
+                   </div>
+                   <div>
+                       <span class="ri10">类型:</span>{{item.type}}
+                   </div>
+                   <div>
+                       <span class="ri10">内容：</span>{{item.content}}
+                   </div>
+                   <div>
+                       <span class="ri10">链接地址:</span>{{item.link}}
+                   </div>
+                   <div class="bot20">
+                       <span  class="ri10">icon:</span>
+                       <img :src="item.icon" alt="" width="100">
+                   </div>
+                   <div class="bot20">
+                       <span  class="ri10">picture:</span>
+                       <img :src="item.pictureURL" alt="" width="200">
+                   </div>
+                   <div style="overflow:hidden" class="bot20">      
+                           <button type="button" class="btn btn-danger" style="float: right;" @click="del(item.ID)">删除</button>
+                           <button type="button" class="btn btn-success" style="float: right;margin-right:30px;"  data-toggle="modal"  @click="edit(item)">修改</button>
+                           <!-- data-target="#myModal" -->
+                   </div>
+                   
+                    
+                </div>
+       </div>
+       <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLabel">修改广告</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <form>
+                    <div class="form-group">
+                      <label for="recipient-name" class="col-form-label">主标题</label>
+                      
+                      <input type="text" class="form-control" id="recipient-name" v-model="title">
+                    </div>
+                    <div class="up bot20"><span class="ri10">小图标</span>
+                        <!-- <img src="http://www.necta.online/lejun/manager/images/show-add.png" alt="" width="50"> -->
+                        <img :src="icon" alt="图片丢啦" width="100">
+                        <input name="icon" type="file" accept="image/*" class="inp_img" id="icon" @change="changeIcon">
+                        
+                    </div>
+                    <div class="form-group">
+                      <label for="message-text" class="col-form-label">小标题:</label>
+                      <input type="text" class="form-control" v-model="smallTitle">
+                    </div>
+                    <div class="form-group">
+                            <label for="message-text" class="col-form-label">内容:</label>
+                            <textarea class="form-control" id="message-text" v-model="content"></textarea>
+                    </div>
+                    <div class="form-group">
+                            <label for="message-text" class="col-form-label">链接:</label>
+                            <input type="text" class="form-control" v-model="link">
+                    </div>
+                    <div class="up bot20"><span class="ri10">主题图片</span>
+                        <img :src="pictureURL" alt="图片丢啦" width="200">
+                        <input name="picture" id="pic" type="file" accept="image/*" class="inp_img" @change="changeImg">
+                    </div>
+                    <div><span class="ri10">类型</span>
+                        <input type="radio" value="1" name="type" v-model="type"><span style="margin-right:20px;">1</span>
+                        <input type="radio" value="2" name="type" v-model="type">2
+                    </div>
+                  </form>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                  <button type="button" class="btn btn-primary" data-dismiss="modal"  @click="toEdit">修改</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+   </div> 
+</body>
+</html>
+<script src="http://www.necta.online/js/vue.min.js"></script>
+<script src="../js/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="js/base.js"></script>
+<script src="../js/layer/layer.js"></script>
+<script>
+   var vm=new Vue({
+       el:'#body',
+       data:{
+           title:'',
+           content:'',
+           link:'',
+           smallTitle:'',
+           icon:'',
+           pictureURL:'',
+           type:'',
+          list:[]
+       },
+       methods:{
+           del(ID){
+               console.log("delete");
+            layer.confirm('你确定要删除此条广告吗', {
+                btn: ['确定', '取消', ] //可以无限个按钮
+                }, function(index, layero){
+                   console.log("确定");
+                   vm.toDel(ID);
+                }, function(index){
+                    console.log("取消");
+                //按钮【按钮二】的回调
+                });
+               
+
+           },
+           toDel(ID){
+            $.ajax({
+                "url":'deleteAd.php',
+                type: "GET",
+                data:{
+                    ID:ID
+                },
+                success: function(data) {
+                    data=JSON.parse(data);
+                    if(data.result=='OK'){
+                        vm.readAds();
+                        layer.open({
+                                title:'提示',
+                                content:'广告删除成功'
+                            })
+                    }else{
+                        layer.open({
+                                title:'提示',
+                                content:'广告删除失败，reason:'.data.reason
+                            })
+                    }
+                    // layui.layer.close(index);
+                    // location.href = "show5.1.html?back=1"
+                //	window.lejia.toast("上传成功！");
+                },
+                error: function(status) {
+                    layer.open({
+                                title:'提示',
+                                content:'系统繁忙,请稍后再试'
+                            })
+                    // layui.layer.close(index);
+                //	window.lejia.toast("上传失败！");
+                }
+            });
+
+           },
+           toEdit(){
+            var arr=['title','icon','smallTitle','content','link','pictureURL'];
+                var arr2=['请填写主标题','请选择小图标','请填写小标题','请填写内容','请填写链接','请选择图片链接'];
+                for(var i=0;i<arr.length;i++){
+                    if(!this[arr[i]]){
+                        layer.open({
+                            title:'提示',
+                            content:arr2[i]
+                        })
+                        return;
+                    }
+                }
+                var formData = new FormData();
+                formData.append('title',this.title);
+                formData.append('type',this.type);
+                console.log(this.ID);
+                    formData.append('ID',this.ID);
+                if(this.icon.substring(0,4)=='blob'){
+                    console.log("重新选择了图片");
+                    
+                    formData.append('icon',$('#icon')[0].files[0])
+                }else{
+                    console.log("老图片");
+                    formData.append('icon',this.icon);
+                }
+                formData.append('smallTitle',this.smallTitle);
+                formData.append('content',this.content);
+                formData.append('link',this.link);
+                if(this.pictureURL.substring(0,4)=='blob'){
+                    formData.append('picture',$('#pic')[0].files[0])
+                }else{
+                    formData.append('picture',this.pictureURL);
+                }
+
+            $.ajax({
+                "url":'modifyAd.php',
+                type: "POST",
+                data:formData,
+                cache: false,
+                contentType: false,
+                processData: false,
+                success: function(data) {
+                    data=JSON.parse(data);
+                    if(data.result=='OK'){
+                        vm.readAds();
+                        layer.open({
+                                title:'提示',
+                                content:'广告修改成功'
+                            })
+                    }else{
+                        layer.open({
+                                title:'提示',
+                                content:'广告修改失败，reason:'.data.reason
+                            })
+                    }
+                    // layui.layer.close(index);
+                    // location.href = "show5.1.html?back=1"
+                //	window.lejia.toast("上传成功！");
+                },
+                error: function(status) {
+                    layer.open({
+                                title:'提示',
+                                content:'系统繁忙,请稍后再试'
+                            })
+                    // layui.layer.close(index);
+                //	window.lejia.toast("上传失败！");
+                }
+            });
+
+           },
+            changeIcon(e) {
+                    var imgUrl = getImgURL(e.target.files[0]);
+                    if (imgUrl) {
+                        this.icon = imgUrl;
+                    }
+            },
+            changeImg(e) {
+                var imgUrl = getImgURL(e.target.files[0]);
+                if (imgUrl) {
+                    this.pictureURL = imgUrl;
+                }
+
+            },
+          edit(item){
+            $('#myModal').modal()
+            //   this.activeItem=item;
+            this.ID = item.ID;
+              this.title = item.title;
+              this.content = item.content;
+              this.smallTitle = item.smallTitle;
+              this.type = item.type;
+              this.icon = item.icon;
+              this.pictureURL = item.pictureURL;
+              this.link = item.link;
+          },
+          readAds(){
+            $.ajax({
+                "url":'readAds.php',
+                type: "get",
+                success: function(data) {
+                    data=JSON.parse(data);
+                    if(data.result=='OK'){
+                        vm.list = data.list;
+                    }else{
+                       
+                    }
+                    // layui.layer.close(index);
+                    // location.href = "show5.1.html?back=1"
+                //	window.lejia.toast("上传成功！");
+                },
+                error: function(status) {
+                    alert("失败");
+                    // layui.layer.close(index);
+                //	window.lejia.toast("上传失败！");
+                }
+            });
+          }
+       },
+       created(){
+             this.readAds();
+       }
+   })
+</script>

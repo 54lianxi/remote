@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="body" class="w1200">
+        <div class="title">添加广告</div>
+        <form enctype="multipart/form-data" id="addShowForm">
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text" id="inputGroup-sizing-default">主标题</span>
+                    </div>
+                    <input type="text" class="form-control" aria-describedby="inputGroup-sizing-default" name="title" v-model="title">
+                  </div>
+
+                 
+
+                <div class="bot20">
+                    <div class="bot10">小图标</div>
+                    <div class="up">
+                        <img src="http://www.necta.online/lejun/manager/images/show-add.png" alt="" width="50">
+                        <input name="icon" type="file" accept="image/*" class="inp_img" id="icon" @change="changeIcon">
+
+                    </div>
+                    <img :src="iconSrc" alt="" v-if="iconSrc" width="50">
+
+                </div>
+
+                <div class="input-group mb-3 bot20">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text" id="inputGroup-sizing-default">小标题</span>
+                    </div>
+                    <input type="text" class="form-control" aria-describedby="inputGroup-sizing-default" name="smallTitle" v-model="smallTitle">
+                  </div>
+                <div class="input-group bot20">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text">内容</span>
+                    </div>
+                    <textarea name="content" class="form-control" v-model="content"></textarea>
+                  </div>
+                  <div class="input-group mb-3 bot20">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text" id="inputGroup-sizing-default">链接</span>
+                    </div>
+                    <input type="text" class="form-control" aria-describedby="inputGroup-sizing-default" name="link" v-model="link">
+                  </div>
+    
+               
+                <div class="bot20">
+                    <div class="bot10">主题图片</div>
+                    <div class="up">
+                        <img src="http://www.necta.online/lejun/manager/images/show-add.png" alt="" width="100">
+                        <input name="picture" id="pic" type="file" accept="image/*" class="inp_img" @change="changeImg">
+
+                    </div>
+                    <img :src="imgSrc" alt="" v-if="imgSrc" width="100">
+
+                </div>
+                <div>
+                    <div class="bot20">
+                        <span class="ri10">类型</span>
+                        <input type="radio" value="1" name="type" checked><span style="margin-right:20px;">1</span>
+                        <input type="radio" value="2" name="type">2
+                    </div>
+                </div>
+                
+            <!-- <input type="submit" value="提交"> -->
+
+            <div class="bot20 btn btn-primary" @click="add">添加广告</div>
+            </form>
+    </div>
+</body>
+
+</html>
+<script src="../js/vue.min.js"></script>
+<script src="../js/jquery.min.js"></script>
+<script src="../js/layer/layer.js"></script>
+<script>
+    new Vue({
+        el: '#body',
+        data: {
+            iconSrc: '',
+            imgSrc: '',
+            title: '',
+            smallTitle: '',
+            content: '',
+            link: '',
+            type: 1,
+
+        },
+        methods: {
+            changeIcon(e) {
+                var imgUrl = getImgURL(e.target.files[0]);
+                if (imgUrl) {
+                    this.iconSrc = imgUrl;
+                }
+            },
+            changeImg(e) {
+                var imgUrl = getImgURL(e.target.files[0]);
+                if (imgUrl) {
+                    this.imgSrc = imgUrl;
+                }
+
+            },
+            add() {
+                //type有默认值，不需要进行判断
+                var arr=['title','iconSrc','smallTitle','content','link','imgSrc'];
+                var arr2=['请填写主标题','请选择小图标','请填写小标题','请填写内容','请填写链接','请选择图片链接'];
+                for(var i=0;i<arr.length;i++){
+                    if(!this[arr[i]]){
+                        layer.open({
+                            title:'提示',
+                            content:arr2[i]
+                        })
+                        return;
+                    }
+                }
+
+                var cerForm = document.getElementById('addShowForm');
+                var formData = new FormData(cerForm);
+
+                $.ajax({
+                    "url": 'addAd.php',
+                    type: "post",
+                    data: formData,
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    success: function (data) {
+                        data=JSON.parse(data);
+                        if(data.result=='OK'){
+                            layer.open({
+                                title:'提示',
+                                content:'广告添加成功'
+                            })
+                        }else{
+                            layer.open({
+                                title:'提示',
+                                content:'添加失败,reason:'+reason,
+                            })
+                        }
+                        // layui.layer.close(index);
+                        // location.href = "show5.1.html?back=1"
+                        //	window.lejia.toast("上传成功！");
+                    },
+                    error: function (status) {
+                        layer.open({
+                                title:'提示',
+                                content:'系统繁忙，请稍后再试',
+                            })
+                        // layui.layer.close(index);
+                        //	window.lejia.toast("上传失败！");
+                    }
+                });
+            }
+        }
+    })
+
+    function getImgURL(file) {
+        var url = null;
+        if (window.createObjectURL != undefined) { // basic
+            url = window.createObjectURL(file);
+        } else if (window.URL != undefined) { // mozilla(firefox)
+            url = window.URL.createObjectURL(file);
+        } else if (window.webkitURL != undefined) { // webkit or chrome
+            url = window.webkitURL.createObjectURL(file);
+        }
+        return url;
+    }
+</script>
