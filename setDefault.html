@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"><link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css"
+        integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <title>设置默认广告组</title>
+</head>
+<body>
+<div id="body">
+    <left :active="active"></left>
+    <div class="con">
+        <div class="title">设置默认广告组</div>
+        <div class="bot10">当前默认组：</div>
+        <div class="dropdown bot20">
+            <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+              {{groupName}}
+              <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+              <li v-for="(item,key) in list" @click="choose(item)"><a href="#">{{item.groupName}}</a></li>
+            </ul>
+          </div>
+          <button type="button" class="btn btn-success" style="float:right;" @click="edit">修改默认组</button>
+    </div>
+</div>    
+</body>
+</html>
+<script src="../js/vue.min.js"></script>
+<script src="js/base.js"></script>
+<script src="../js/jquery.min.js"></script>
+<script src="../js/layer/layer.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"
+    integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+    crossorigin="anonymous"></script>
+<script>
+var vm = new Vue({
+    el:'#body',
+    data:{
+        active:4,
+        groupName:'',
+        groupID:'',
+        list:[],
+    },
+    methods:{
+        edit(){
+            if(!this.groupID){
+                layer.open({
+                                title: '提示',
+                                content: '当前选中广告组'
+                })
+                return;
+            }
+            $.ajax({
+                url:'setDefault.php',
+                type:'get',
+                data:{
+                    groupID:vm.groupID
+                },
+                success(data){
+
+                    try{
+                        data = JSON.parse(data);
+                        if(data.result == "OK"){
+                            layer.open({
+                                title: '提示',
+                                content: '设置默认组成功'
+                            })
+                            vm.getDefault();
+                        }else{
+                            layer.open({
+                                title: '提示',
+                                content: '设置默认组失败，原因:'+data.reason
+                            })
+                        }
+                    }catch(e){
+                        layer.open({
+                                title: '提示',
+                                content: '设置默认组失败，原因:'+e
+                            })
+                    }
+                },error(){
+                    layer.open({
+                            title: '提示',
+                            content: '系统繁忙,请稍后再试'
+                        })
+
+                }
+            })
+        },
+        choose(item){
+            this.groupName = item.groupName;
+            this.groupID = item.groupID;
+        },
+        getDefault(){
+            $.ajax({
+                url:'getDefault.php',
+                type:"get",
+                success(data){
+                    try{
+                        data = JSON.parse(data);
+                        if(data.result == 'OK'){
+                           if(data.list.length>0){
+                               vm.groupID = data.list[0].groupID;
+                               vm.groupName = data.list[0].groupName;
+                           }
+                        }else{
+                            layer.open({
+                                title: '提示',
+                                content: '获取当前默认组失败,原因:'+data.reason
+                            })
+                        }
+
+                    }catch(e){
+                        layer.open({
+                                title: '提示',
+                                content: '广告组删除失败，reason:'+e
+                            })
+                    }
+
+                },error(){
+                    layer.open({
+                            title: '提示',
+                            content: '系统繁忙,请稍后再试'
+                        })
+                }
+            })
+        },
+        listGroup(){
+            $.ajax({
+                url:'listGroup.php',
+                type:"get",
+                success(data){
+                    try{
+                        data = JSON.parse(data);
+                        if(data.result == 'OK'){
+                            vm.list = data.list;  
+                        }else{
+                            layer.open({
+                                title: '提示',
+                                content: '获取当前广告组失败,原因:'+data.reason
+                            })
+                        }
+
+                    }catch(e){
+                        layer.open({
+                                title: '提示',
+                                content: '获取当前广告组失败，reason:'+e
+                            })
+                    }
+                },error(){
+                    layer.open({
+                            title: '提示',
+                            content: '系统繁忙,请稍后再试'
+                        })
+                }
+            })
+        }
+    },
+    created(){
+         this.getDefault();
+         this.listGroup();
+    }
+})
+</script>

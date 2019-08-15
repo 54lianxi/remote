@@ -6,76 +6,64 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" href="css/base.css">
-    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    <title>Document</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css"
+    integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <title>添加广告</title>
 </head>
 
 <body>
-    <div id="body" class="w1200">
-        <div class="title">添加广告</div>
-        <form enctype="multipart/form-data" id="addShowForm">
-                <div class="input-group mb-3">
-                    <div class="input-group-prepend">
-                      <span class="input-group-text" id="inputGroup-sizing-default">主标题</span>
-                    </div>
-                    <input type="text" class="form-control" aria-describedby="inputGroup-sizing-default" name="title" v-model="title">
-                  </div>
+    <div id="body">
+            <left :active="active"></left>
+        <div class="con">
+                <div class="title">添加广告</div>
+                <form enctype="multipart/form-data" id="addShowForm">
+                              <input type="text" class="form-control bot20" placeholder="主标题" name="title" v-model="title">
+                             
+                        <div class="bot20">
+                            <div class="bot10">小图标</div>
+                            <div class="up">
+                                <img src="http://www.necta.online/lejun/manager/images/show-add.png" alt="" width="50">
+                                <input name="icon" type="file" accept="image/*" class="inp_img" id="icon" @change="changeIcon">
+        
+                            </div>
+                            <img :src="iconSrc" alt="" v-if="iconSrc" width="50">
+        
+                        </div>
 
-                 
+                              <input type="text" class="form-control bot20" placeholder="小标题" name="smallTitle" v-model="smallTitle">
 
-                <div class="bot20">
-                    <div class="bot10">小图标</div>
-                    <div class="up">
-                        <img src="http://www.necta.online/lejun/manager/images/show-add.png" alt="" width="50">
-                        <input name="icon" type="file" accept="image/*" class="inp_img" id="icon" @change="changeIcon">
+                              <textarea class="form-control bot20" rows="3"  placeholder="内容" name="content" v-model="content"></textarea>
 
-                    </div>
-                    <img :src="iconSrc" alt="" v-if="iconSrc" width="50">
 
-                </div>
 
-                <div class="input-group mb-3 bot20">
-                    <div class="input-group-prepend">
-                      <span class="input-group-text" id="inputGroup-sizing-default">小标题</span>
-                    </div>
-                    <input type="text" class="form-control" aria-describedby="inputGroup-sizing-default" name="smallTitle" v-model="smallTitle">
-                  </div>
-                <div class="input-group bot20">
-                    <div class="input-group-prepend">
-                      <span class="input-group-text">内容</span>
-                    </div>
-                    <textarea name="content" class="form-control" v-model="content"></textarea>
-                  </div>
-                  <div class="input-group mb-3 bot20">
-                    <div class="input-group-prepend">
-                      <span class="input-group-text" id="inputGroup-sizing-default">链接</span>
-                    </div>
-                    <input type="text" class="form-control" aria-describedby="inputGroup-sizing-default" name="link" v-model="link">
-                  </div>
-    
-               
-                <div class="bot20">
-                    <div class="bot10">主题图片</div>
-                    <div class="up">
-                        <img src="http://www.necta.online/lejun/manager/images/show-add.png" alt="" width="100">
-                        <input name="picture" id="pic" type="file" accept="image/*" class="inp_img" @change="changeImg">
-
-                    </div>
-                    <img :src="imgSrc" alt="" v-if="imgSrc" width="100">
-
-                </div>
-                <div>
-                    <div class="bot20">
-                        <span class="ri10">类型</span>
-                        <input type="radio" value="1" name="type" checked><span style="margin-right:20px;">1</span>
-                        <input type="radio" value="2" name="type">2
-                    </div>
-                </div>
-                
-            <!-- <input type="submit" value="提交"> -->
-
-            <div class="bot20 btn btn-primary" @click="add">添加广告</div>
-            </form>
+                          <input type="text" class="form-control bot20" placeholder="链接"  name="link" v-model="link">
+  
+            
+                       
+                        <div class="bot20">
+                            <div class="bot10">主题图片</div>
+                            <div class="up">
+                                <img src="http://www.necta.online/lejun/manager/images/show-add.png" alt="" width="100">
+                                <input name="picture" id="pic" type="file" accept="image/*" class="inp_img" @change="changeImg">
+        
+                            </div>
+                            <img :src="imgSrc" alt="" v-if="imgSrc" width="100">
+        
+                        </div>
+                        <div>
+                            <div class="bot20">
+                                <span class="ri10">类型</span>
+                                <input type="radio" value="1" name="type" checked><span style="margin-right:20px;">1</span>
+                                <input type="radio" value="2" name="type">2
+                            </div>
+                        </div>
+                        
+                    <!-- <input type="submit" value="提交"> -->
+        
+                    <div class="bot20 btn btn-primary" @click="add">添加广告</div>
+                    </form>
+        </div>
+        
     </div>
 </body>
 
@@ -83,10 +71,13 @@
 <script src="../js/vue.min.js"></script>
 <script src="../js/jquery.min.js"></script>
 <script src="../js/layer/layer.js"></script>
+<script src="js/base.js"></script>
+<script src="../js/load.js"></script>
 <script>
     new Vue({
         el: '#body',
         data: {
+            active:0,
             iconSrc: '',
             imgSrc: '',
             title: '',
@@ -111,6 +102,7 @@
 
             },
             add() {
+                loading();
                 //type有默认值，不需要进行判断
                 var arr=['title','iconSrc','smallTitle','content','link','imgSrc'];
                 var arr2=['请填写主标题','请选择小图标','请填写小标题','请填写内容','请填写链接','请选择图片链接'];
@@ -120,6 +112,7 @@
                             title:'提示',
                             content:arr2[i]
                         })
+                        stoploading();
                         return;
                     }
                 }
@@ -147,6 +140,7 @@
                                 content:'添加失败,reason:'+reason,
                             })
                         }
+                        stoploading();
                         // layui.layer.close(index);
                         // location.href = "show5.1.html?back=1"
                         //	window.lejia.toast("上传成功！");
@@ -156,6 +150,7 @@
                                 title:'提示',
                                 content:'系统繁忙，请稍后再试',
                             })
+                        stoploading();
                         // layui.layer.close(index);
                         //	window.lejia.toast("上传失败！");
                     }

@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"><link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css"
+        integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <title>查看广告组</title>
+    <style>
+    label{
+        margin-right:20px;
+    }
+    .row{
+        display:flex;
+        flex-direction: row;
+    }
+    .checkbox{
+        padding:0 20px;
+    }
+    </style>
+</head>
+<body>
+  <div id="body">
+        <left :active="active"></left>
+        <div class="con">
+            <div class="title">查看广告组</div>
+            <div>
+                <div v-for="(item,index) in list" class="bot20 one">
+                    <div class="bot10">组名:{{item.groupName}}</div>
+                    <div>拥有广告：<span v-if="!item.ads">暂无广告，去<a href="addGroup.html">添加</a></span></div>
+                    <div v-for="(item2,index2) in item.ads" v-if="item.ads" @click="detail(item2)" style="cursor: pointer;text-decoration: underline;">
+                        {{item2.title}}
+                    </div>
+                    <div style="overflow:hidden" class="bot20">
+                            <button type="button" class="btn btn-danger" style="float: right;"
+                                @click="del(item.groupID)">删除</button>
+                            <button type="button" class="btn btn-success" style="float: right;margin-right:30px;"
+                                @click="edit(item)">修改</button>
+                            <!-- data-target="#myModal" -->
+                        </div>
+                    
+                </div>
+            </div>
+            <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">广告详情</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form>
+                                <div class="bot20">主标题：{{title}}</div>
+                                <div class="bot20">
+                                        <span class="ri10">小图标：</span>
+                                        <img :src="icon" alt="图片丢啦"  width="100">
+                                </div>
+                                <div class="bot20">小标题：{{smallTitle}}</div>
+                                <div class="bot20">内容：{{content}}</div>
+                                <div class="bot20">链接：{{link}}</div>
+                                <div class="bot20">
+                                        <span class="ri10">主题图片：</span>
+                                        <img :src="pictureURL" alt="图片丢啦" width="200">
+                                </div>
+                                <div class="bot20">类型：{{type}}</div>
+
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                            <!-- <button type="button" class="btn btn-primary" data-dismiss="modal"
+                                @click="">修改</button> -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal fade" id="myModal2" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">编辑广告组</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form>
+                                <div class="form-group">
+                                    <label for="recipient-name" class="col-form-label">组名</label>
+                                    <input type="text" class="form-control" id="recipient-name" v-model="groupName">
+                                </div>
+                                <div>广告（请在你想要添加的广告前面打勾,下面数据为广告标题）</div>
+                                <div class="checkbox">
+                                    <div  v-for="(item,key) in adList" class="row">
+                                        <!-- {{ads}}
+                                        {{adList}} -->
+                                        <label>
+                                                <input type="checkbox" :value="item.ID" v-model="ads"> {{item.title}}
+                                        </label>
+                                        <div v-if="ads.indexOf(item.ID)!=-1">
+                                            <img src="toTop.png" alt="" width="20" @click="toTop(key)">
+                                            <img src="toBot.png" alt="" width="20" @click="toBot(key)">
+                                        </div>
+                                    </div>
+                
+                                </div>
+
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                            <button type="button" class="btn btn-primary" data-dismiss="modal"
+                                @click="toEdit">修改</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+  </div>  
+</body>
+</html>
+<script src="../js/vue.min.js"></script>
+<script src="js/base.js"></script>
+<script src="../js/jquery.min.js"></script>
+<script src="../js/layer/layer.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"
+    integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+    crossorigin="anonymous"></script>
+<script>
+var vm = new Vue({
+    el:'#body',
+    data:{
+        active:3,
+        list:[],
+        title:"",
+        smallTitle:"",
+        icon:'',
+        content:'',
+        link:'',
+        pictureURL:'',
+        type:'',
+        groupName:'',
+        adList:[],
+        ads:[],
+
+    },
+    methods:{
+        toTop(key){
+           if(key!=0){
+               this.adList[key] = this.adList.splice(key-1,1,this.adList[key])[0];
+               this.ads[key] = this.ads.splice(key-1,1,this.ads[key])[0];
+              
+           }
+        },
+        toBot(key){
+            if(key!=this.ads.length-1){
+                this.adList[key] = this.adList.splice(key+1, 1, this.adList[key])[0];
+                this.ads[key] = this.ads.splice(key+1, 1, this.ads[key])[0];
+                
+                // this.ads[key] = this.ads.splice(key-1,1,this.ads[key])[0];
+            }
+
+        },
+        rank(adList,ads){
+            var arr=[];
+            for(var i=0;i<ads.length;i++){
+                var index = adList.findIndex(item=>item.ID == ads[i]);
+                if(index !=-1){
+                    arr.push({
+                        title:adList[index].title,
+                        // check:true,
+                        ID:ads[i]
+                    });
+                }else{
+                    continue;
+                }
+            }
+            for(var j=0;j<adList.length;j++){
+                var index = ads.findIndex(item=>item == adList[j].ID);
+                if(index == -1){
+                    arr.push({
+                        title:adList[j].title,
+                        // check:false,
+                        ID:adList[j].ID
+                    })
+                }
+            }
+            this.adList = arr;
+            // this.ads= ads;
+
+        },
+        del(ID){
+            layer.confirm('你确定要删除此条广告吗', {
+                    btn: ['确定', '取消',] //可以无限个按钮
+                }, function (index, layero) {
+                    console.log("确定");
+                    vm.toDel(ID);
+                }, function (index) {
+                    console.log("取消");
+                    //按钮【按钮二】的回调
+                });
+
+        },
+        toDel(ID){
+           $.ajax({
+               url:"delGroup.php",
+               type:"GET",
+               data:{
+                   groupID:ID
+               },
+               success(data){
+                    try{
+                        data = JSON.parse(data);
+                        if(data.result == "OK"){
+                            layer.open({
+                                title: '提示',
+                                content: '广告组删除成功'
+                            })
+                            vm.listGroup();
+                        }else{
+                            layer.open({
+                                title: '提示',
+                                content: '广告组删除失败，原因:'+data.reason
+                            })
+                        }
+                    }catch(e){
+                        layer.open({
+                                title: '提示',
+                                content: '广告组删除失败，reason:'+e
+                            })
+                    }
+               },
+               error(){
+                layer.open({
+                            title: '提示',
+                            content: '系统繁忙,请稍后再试'
+                        })
+
+               }
+
+           })
+        },
+        toEdit(){
+            if(!this.groupName){
+                layer.open({
+                        title: '提示',
+                         content: '组名不能为空',
+                })
+                return;
+            }
+            $.ajax({
+                url:'editGroup.php',
+                method:'get',
+                data:{
+                    'groupID':vm.groupID,
+                    'groupName' : vm.groupName,
+                    'ads' : JSON.stringify(vm.ads)
+                },
+                success(data){
+                    try{
+                        data=JSON.parse(data);
+                        if(data.result == 'OK'){
+                            layer.open({
+                              title: '提示',
+                               content: '修改广告组成功'
+                            })
+                            vm.listGroup();
+                        }else{
+                            layer.open({
+                              title: '提示',
+                               content: '修改广告组失败，原因：'+data.reason
+                            })
+                        }
+
+                    }catch(e){
+                        layer.open({
+                              title: '提示',
+                               content: '系统繁忙，reason:'+e
+                            })
+                    }
+                },
+                error(){
+                    layer.open({
+                            title: '提示',
+                            content: '系统繁忙,请稍后再试'
+                        }) 
+                }
+            })
+
+        },
+        getAdList(ads){
+            $.ajax({
+                url:'readAds.php',
+                method:'get',
+                success(data){
+                    try{
+                        data = JSON.parse(data);
+                        if(data.result == 'OK'){
+                            // vm.adList = data.list;
+                            vm.rank(data.list,ads);
+                            console.log('list',data.list);
+                        }
+
+                    }catch(e){
+                        layer.open({
+                              title: '提示',
+                               content: '系统繁忙，reason:'+e
+                            })
+                    }
+                },
+                error(){
+                    layer.open({
+                        title: '提示',
+                        content: '系统繁忙，请稍后再试'
+                    })
+                }
+            })
+        },
+        edit(item){
+            
+            $('#myModal2').modal();
+            this.groupID = item.groupID;
+            this.groupName = item.groupName;
+            if(item.ads){
+                var arr=[];
+                for(var i=0;i<item.ads.length;i++){
+                    arr.push(item.ads[i].adID);
+                }
+                this.ads = arr;
+                console.log("ads",this.ads);
+
+            }else{
+                this.ads=[]; 
+            }
+            this.getAdList(this.ads);
+            
+        },
+        detail(item){
+            $('#myModal').modal();
+            this.title = item.title;
+            this.content = item.content;
+            this.smallTitle = item.smallTitle ;
+            this.icon = item.icon;
+            this.link = item.link;
+            this.type = item.type;
+            this.pictureURL = item.picture;
+        },
+        listGroup(){
+            $.ajax({
+                url:'listGroup.php',
+                method:'get',
+                success(data){
+                    try{
+                        data=JSON.parse(data);
+                        if(data.result == 'OK'){
+                            vm.list = data.list;
+                        }
+                    }catch(e){
+                        layer.open({
+                              title: '提示',
+                               content: '系统繁忙，reason:'+e
+                            })
+                    }
+                },
+                error(){
+                    layer.open({
+                        title: '提示',
+                        content: '系统繁忙，请稍后再试'
+                    })
+                }
+            })
+        }
+    },
+    created(){
+        this.listGroup();
+    },
+    watch:{
+        ads(){
+            this.rank(this.adList,this.ads);
+            
+        }
+    }
+})
+</script>

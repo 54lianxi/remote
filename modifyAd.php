@@ -73,7 +73,7 @@ if(!empty($pic2['tmp_name'])){
 
 
 
-$sql = "update ads set title = '".$title."',content='".$content."',link='".$link."',smallTitle='".$smallTitle."',type='".$type."',picture='".$picture."',icon='".$icon."' where ID=".$ID;
+$sql = "update ads set title = '".urlencode($title)."',content='".urlencode($content)."',link='".urlencode($link)."',smallTitle='".urlencode($smallTitle)."',type='".$type."',picture='".$picture."',icon='".$icon."' where ID=".$ID;
 
 $result = mysqli_query($sqllink, $sql);
 if(result){

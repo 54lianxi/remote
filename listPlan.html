@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"><link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css"
+        integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <title>查看广告播放计划</title>
+</head>
+<body>
+<div id="body">
+        <left :active="active"></left>
+        <div class="con">
+            <div class="title">查看广告播放计划</div>
+            <div>
+                <div v-if="list.length==0">目前暂无计划</div>
+                <div class="one" v-for="(item,key) in list">
+                    <div>组名 : {{item.groupName}}</div>
+                    <div>开始时间 : {{item.beginTime}}</div>
+                    <div>结束时间 : {{item.endTime}}</div>
+                    <div style="overflow:hidden" class="bot20">
+                            <button type="button" class="btn btn-danger" style="float: right;"
+                                @click="del(item.planID)">删除</button>
+                            <button type="button" class="btn btn-success" style="float: right;margin-right:30px;"
+                                data-toggle="modal" @click="edit(item)">修改</button>
+                        </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">广告详情</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                            <div class="dropdown bot20">
+                                    <div class="bot10">广告组</div>
+                                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" v-if="groupList.length>0" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                      {{groupName}}
+                                      <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                                      <li v-for="(item,key) in groupList" @click="choose(item)"><a href="#">{{item.groupName}}</a></li>
+                                    </ul>
+                                </div>
+                                <div class="bot20">
+                                    <span>开始时间</span>
+                                    <input type="text" id="time1" class="form-control" v-model="beginTime">
+                                </div>
+                                <div class="bot20">
+                                    <span>结束时间</span>
+                                    <input type="text" id="time2" class="form-control" v-model="endTime">
+                                </div>
+
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal"
+                        @click="toEdit">修改</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>    
+</body>
+</html>
+<script src="../js/vue.min.js"></script>
+<script src="js/base.js"></script>
+<script src="../js/jquery.min.js"></script>
+<script src="../js/layer/layer.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"
+    integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+    crossorigin="anonymous"></script>
+<script src="../js/laydate/laydate.js"></script>
+<script>
+var vm = new Vue({
+    el:'#body',
+    data:{
+        active:6,
+        list:[],
+        groupList:[],
+        // index:0,
+        groupName:'',
+        beginTime:'',
+        endTime:''
+    },
+    methods:{
+        del(ID){
+            layer.confirm('你确定要删除此条广告吗', {
+                    btn: ['确定', '取消',] //可以无限个按钮
+                }, function (index, layero) {
+                    console.log("确定");
+                    vm.toDel(ID);
+                }, function (index) {
+                    console.log("取消");
+                    //按钮【按钮二】的回调
+                });
+
+        },
+        toDel(ID){
+           $.ajax({
+               url:"delPlan.php",
+               type:"GET",
+               data:{
+                   planID:ID
+               },
+               success(data){
+                    try{
+                        data = JSON.parse(data);
+                        if(data.result == "OK"){
+                            layer.open({
+                                title: '提示',
+                                content: '计划删除成功'
+                            })
+                            vm.listPlan();
+                        }else{
+                            layer.open({
+                                title: '提示',
+                                content: '计划删除失败，原因:'+data.reason
+                            })
+                        }
+                    }catch(e){
+                        layer.open({
+                                title: '提示',
+                                content: '计划删除失败，reason:'+e
+                            })
+                    }
+               },
+               error(){
+                layer.open({
+                            title: '提示',
+                            content: '系统繁忙,请稍后再试'
+                        })
+
+               }
+
+           })
+        },
+        toEdit(){
+          if(!this.groupID){
+            layer.open({
+                title: '提示',
+                content: '目前未有选中广告组'
+            })
+            return;
+
+          }
+          var beginTime = $('#time1').val();
+          var endTime = $('#time2').val();
+          if(!beginTime){
+            layer.open({
+                title: '提示',
+                content: '开始时间不能为空'
+            })
+            return;
+          }else if(!endTime){
+            layer.open({
+                title: '提示',
+                content: '结束时间不能为空'
+            })
+            return;
+          }
+          $.ajax({
+              url:'editPlan.php',
+              type:'get',
+              data:{
+                  planID:this.planID,
+                  groupID:this.groupID,
+                  beginTime:beginTime,
+                  endTime:endTime
+              },
+              success(data){
+                try{
+                        data=JSON.parse(data);
+                        if(data.result == 'OK'){
+                            layer.open({
+                              title: '提示',
+                               content: '修改计划成功'
+                            })
+                            vm.listPlan();
+                        }else{
+                            layer.open({
+                              title: '提示',
+                               content: '修改计划失败，原因：'+data.reason
+                            })
+                        }
+
+                    }catch(e){
+                        layer.open({
+                              title: '提示',
+                               content: '系统繁忙，reason:'+e
+                            })
+                    }
+
+              },error(){
+                layer.open({
+                            title: '提示',
+                            content: '系统繁忙,请稍后再试'
+                        }) 
+              }
+          })
+
+        },
+        choose(item){
+           this.groupName = item.groupName;
+           this.groupID = item.groupID;
+        },
+        edit(item){
+            $('#myModal').modal();
+            this.listGroup();
+            this.planID = item.planID;
+            this.groupName = item.groupName;
+            this.groupID = item.groupID;
+            this.beginTime = item.beginTime;
+            this.endTime = item.endTime;
+        },
+        listPlan(){
+            $.ajax({
+                url:'listPlan.php',
+                type:'get',
+                success(data){
+                    try{
+                        data = JSON.parse(data);
+                        if(data.result == 'OK'){
+                            if(data.number>0){
+                                vm.list = data.list;  
+                            }else{
+                                vm.list=[];
+                            }
+                            
+                        }else{
+                            layer.open({
+                                title: '提示',
+                                content: '获取计划失败,原因:'+data.reason
+                            })
+                        }
+
+                    }catch(e){
+                        layer.open({
+                                title: '提示',
+                                content: '获取计划失败，reason:'+e
+                            })
+                    }
+
+                },
+                error(){
+                    layer.open({
+                            title: '提示',
+                            content: '系统繁忙,请稍后再试'
+                        }) 
+                }
+            })
+        },
+        listGroup(){
+            $.ajax({
+                url:'listGroup.php',
+                type:"get",
+                success(data){
+                    try{
+                        data = JSON.parse(data);
+                        if(data.result == 'OK'){
+                            console.log(data.list);
+                            vm.groupList = data.list;  
+                        }else{
+                            layer.open({
+                                title: '提示',
+                                content: '获取当前广告组失败,原因:'+data.reason
+                            })
+                        }
+
+                    }catch(e){
+                        layer.open({
+                                title: '提示',
+                                content: '获取当前广告组失败，reason:'+e
+                            })
+                    }
+                },error(){
+                    layer.open({
+                            title: '提示',
+                            content: '系统繁忙,请稍后再试'
+                        })
+                }
+            })
+        }
+        
+    },
+    created(){
+        this.listPlan();
+    },
+    mounted(){
+        laydate.render({
+            type:"datetime",
+            elem: '#time1' //指定元素
+        });
+        laydate.render({
+            type:"datetime",
+            elem: '#time2' //指定元素
+        });
+
+    }
+})
+</script>

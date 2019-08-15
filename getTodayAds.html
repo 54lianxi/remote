@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"><link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css"
+        integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <title>查看当前播放广告</title>
+</head>
+<body>
+<div id="body">
+    <left :active="active"></left> 
+    <div class="con">
+        <div class="title">查看当前播放广告</div>
+        <div v-if="list.length==0" v-cloak>暂无数据</div>
+            <div>
+                <div v-for="(item,key) in list" class="one">
+                    <div>
+                        <span class="ri10">主标题:</span>{{item.title}}
+                    </div>
+                    <div>
+                        <span class="ri10">小标题:</span>{{item.smallTitle}}
+                    </div>
+                    <div>
+                        <span class="ri10">类型:</span>{{item.type}}
+                    </div>
+                    <div>
+                        <span class="ri10">内容：</span>{{item.content}}
+                    </div>
+                    <div>
+                        <span class="ri10">链接地址:</span>{{item.link}}
+                    </div>
+                    <div class="bot20">
+                        <span class="ri10">icon:</span>
+                        <img :src="item.icon" alt="图片丢啦" width="100">
+                    </div>
+                    <div class="bot20">
+                        <span class="ri10">picture:</span>
+                        <img :src="item.picture" alt="图片丢啦" width="200">
+                    </div>
+
+
+                </div>
+            </div>
+    </div>
+</div>   
+</body>
+</html>
+<script src="../js/vue.min.js"></script>
+<script src="js/base.js"></script>
+<script src="../js/jquery.min.js"></script>
+<script src="../js/layer/layer.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"
+    integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+    crossorigin="anonymous"></script>
+<script>
+var vm = new Vue({
+    el:'#body',
+    data:{
+      active:7,
+      list:[]
+    },
+    methods:{
+        getTodayAds(){
+            $.ajax({
+                url:'getTodayAds.php',
+                type:'get',
+                success(data){
+                    try{
+                        data = JSON.parse(data);
+                        if(data.result == "OK"){
+                            if(data.number>0){
+                                vm.list = data.list
+                            }else{
+                                vm.list = [];
+                            }
+                        }else{
+                            layer.open({
+                                title: '提示',
+                                content: '获取当前广告失败，原因:'+data.reason
+                            })
+                        }
+                    }catch(e){
+                        layer.open({
+                                title: '提示',
+                                content: '获取当前广告失败，原因:'+e
+                            })
+                    }
+
+                },error(){
+                    layer.open({
+                        title: '提示',
+                        content: '系统繁忙,请稍后再试'
+                    })
+                }
+            })
+        }
+
+    },
+    created(){
+        this.getTodayAds();
+    }
+})
+</script>

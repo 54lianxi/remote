@@ -24,8 +24,8 @@ if($num_rows <= 0){
         $smallTitle=$row['smallTitle'];
         $type=$row['type'];
         $icon = $row['icon'];
-        $arr = array ('ID'=>$ID, 'content'=>$content,'title'=>$title, 
-                'link'=>$link,'pictureURL'=>'imgs/'.$picture, 'smallTitle'=>$smallTitle,'type'=>$type,'icon'=>'imgs/'.$icon);
+        $arr = array ('ID'=>$ID, 'content'=>urldecode($content),'title'=>urldecode($title), 
+                'link'=>urldecode($link),'pictureURL'=>'imgs/'.$picture, 'smallTitle'=>urldecode($smallTitle),'type'=>$type,'icon'=>'imgs/'.$icon);
                 
         array_push($members, $arr);
     }

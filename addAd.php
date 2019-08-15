@@ -47,7 +47,7 @@ if(!empty($picture['tmp_name'])){
 
 }
 mysqli_query($sqllink, "SET NAMES UTF8");
-$sql = "insert into ads(`title`,`smallTitle`,`content`,`link`,`picture`,`type`,`icon`) values('".$title."','".$smallTitle."','".$content."','".$link."','".$string_pic2."','".$type."','".$string_pic1."')";
+$sql = "insert into ads(`title`,`smallTitle`,`content`,`link`,`picture`,`type`,`icon`) values('".urlencode($title)."','".urlencode($smallTitle)."','".urlencode($content)."','".urlencode($link)."','".$string_pic2."','".$type."','".$string_pic1."')";
 $result = mysqli_query($sqllink, $sql);
 if($result){
     $arr = array("result"=>"OK");
